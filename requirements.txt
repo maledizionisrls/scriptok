@@ -1,5 +1,5 @@
 selenium
-playwright
 requests
 asyncio
 pyktok
+playwright[chromium]
