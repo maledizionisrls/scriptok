@@ -4,6 +4,7 @@ Script di esecuzione e upload per Python Anywhere
 import asyncio
 from ftplib import FTP
 from main import main
+from config import CONFIG  # Importa la configurazione
 
 # Configurazione FTP
 FTP_CONFIG = {
@@ -11,7 +12,7 @@ FTP_CONFIG = {
     'user': 'scriptok@notizia.info',
     'password': 'scriptok2025##',
     'path': '/public_html',  # Directory corretta
-    'remote_filename': CONFIG['OUTPUT_FILENAME'],  # Nome fisso del file remoto
+    'remote_filename': CONFIG['OUTPUT_FILENAME'],  # Nome del file remoto dinamico
 }
 
 def upload_to_ftp(local_file):
@@ -65,7 +66,7 @@ async def run():
         await main()
         
         # Carica il file su FTP
-        local_file = 'tiktok_trending2.html'
+        local_file = CONFIG['OUTPUT_FILENAME']  # Usa il nome del file dinamico
         print("\nInizio caricamento FTP...")
         upload_to_ftp(local_file)
         
