@@ -17,6 +17,15 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: '3.10'
+          cache: 'pip'
+          
+      - name: Cache Playwright browsers
+        uses: actions/cache@v3
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-${{ hashFiles('requirements.txt') }}
+          restore-keys: |
+            playwright-${{ runner.os }}-
           
       - name: Install dependencies
         run: |
@@ -25,17 +34,31 @@ jobs:
           
       - name: Install Playwright browsers
         run: |
-          python -m playwright install chromium
-          python -m playwright install-deps
+          python -m playwright install chromium --with-deps
           
       - name: Execute scraper
         env:
           FTP_HOST: ${{ secrets.FTP_HOST }}
           FTP_USER: ${{ secrets.FTP_USER }}
           FTP_PASS: ${{ secrets.FTP_PASS }}
-        run: python run.py
+        run: |
+          echo "Starting script execution..."
+          python -u run.py  # -u forza l'output unbuffered
+        
+      - name: Check generated files
+        if: always()  # Esegui questo step anche se il precedente fallisce
+        run: |
+          echo "Checking for generated files..."
+          ls -la
+          if [ -f "tiktok_trending.html" ]; then
+            echo "HTML file was generated"
+            du -h tiktok_trending.html
+          else
+            echo "HTML file was not generated"
+          fi
           
       - name: Commit and push if changed
+        if: success()  # Solo se tutto è andato bene
         run: |
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
@@ -43,6 +66,7 @@ jobs:
           git diff-index --quiet HEAD || (git commit -a -m "Update TikTok trending videos" --allow-empty)
           
       - name: Push changes
+        if: success()  # Solo se tutto è andato bene
         uses: ad-m/github-push-action@v0.6.0
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
