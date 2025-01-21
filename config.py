@@ -12,7 +12,7 @@ CONFIG = {
     'DELAY': 0.05,             # Delay tra le richieste in secondi
     'MAX_AUTH_RETRIES': 3,     # Numero massimo di tentativi per l'autenticazione
     'AUTH_RETRY_DELAY': 2,     # Secondi di attesa tra i tentativi di autenticazione
-    'OUTPUT_FILENAME': 'tiktok_trending.html'  # Nome fisso del file di output
+    'OUTPUT_FILENAME': 'tiktok_trending2.html'  # Nome fisso del file di output
 }
 
 # Configurazione browser
