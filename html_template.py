@@ -1,8 +1,6 @@
-"""
-Gestione dei template HTML per la visualizzazione dei video
-"""
 import json
 from typing import List, Dict
+from config import CONFIG  # Importa la configurazione dal file config.py
 
 class HTMLGenerator:
     @staticmethod
@@ -147,7 +145,7 @@ class HTMLGenerator:
 
         html_middle = f'''
         // Configurazione
-        const VIDEOS_PER_PAGE = 10;
+        const VIDEOS_PER_PAGE = {CONFIG['VIDEOS_PER_PAGE']};
         const videos = {videos_json};
 
         // Stato corrente
