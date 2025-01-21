@@ -12,7 +12,9 @@ CONFIG = {
     'DELAY': 0.01,             # Delay tra le richieste in secondi
     'MAX_AUTH_RETRIES': 3,     # Numero massimo di tentativi per l'autenticazione
     'AUTH_RETRY_DELAY': 2,     # Secondi di attesa tra i tentativi di autenticazione
-    'OUTPUT_FILENAME': 'scriptok.html'  # Nome fisso del file di output
+    'OUTPUT_FILENAME': 'scriptok.html', # Nome fisso del file di output
+    'VIDEOS_PER_PAGE': 9,  # Numero di video per pagina
+
 }
 
 # Configurazione browser
