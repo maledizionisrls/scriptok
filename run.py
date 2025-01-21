@@ -1,17 +1,18 @@
 """
-Script di esecuzione e upload per Python Anywhere
+Script di esecuzione e upload per GitHub Actions
 """
 import asyncio
+import os
 from ftplib import FTP
 from main import main
 
-# Configurazione FTP
+# Configurazione FTP dalle variabili d'ambiente
 FTP_CONFIG = {
-    'host': 'notizia.info',
-    'user': 'scriptok@notizia.info',
-    'password': 'scriptok2025##',
-    'path': '/public_html',  # Directory corretta
-    'remote_filename': 'tiktok_trending.html'  # Nome fisso del file remoto
+    'host': os.getenv('FTP_HOST', 'notizia.info'),
+    'user': os.getenv('FTP_USER', 'scriptok@notizia.info'),
+    'password': os.getenv('FTP_PASS', 'scriptok2025##'),
+    'path': '/public_html',
+    'remote_filename': 'tiktok_trending.html'
 }
 
 def upload_to_ftp(local_file):
@@ -40,23 +41,11 @@ def upload_to_ftp(local_file):
             with open(local_file, 'rb') as f:
                 ftp.storbinary(f'STOR {FTP_CONFIG["remote_filename"]}', f)
             
-            # Verifica che il file sia stato caricato
-            file_list = ftp.nlst()
-            if FTP_CONFIG['remote_filename'] in file_list:
-                print(f"File caricato con successo e verificato: {FTP_CONFIG['remote_filename']}")
-                
-                # Verifica dimensione del file
-                file_size = ftp.size(FTP_CONFIG['remote_filename'])
-                if file_size > 0:
-                    print(f"Dimensione file verificata: {file_size} bytes")
-                else:
-                    print("ATTENZIONE: Il file caricato sembra essere vuoto!")
-            else:
-                print("ERRORE: Il file non risulta presente dopo il caricamento!")
+            print(f"File caricato con successo: {FTP_CONFIG['remote_filename']}")
                 
     except Exception as e:
         print(f"Errore durante il caricamento FTP: {str(e)}")
-        raise  # Rilancia l'errore per gestirlo nel codice principale
+        raise
 
 async def run():
     try:
@@ -73,6 +62,7 @@ async def run():
         
     except Exception as e:
         print(f"Errore durante l'esecuzione: {e}")
+        raise  # Importante: rilancia l'errore per far fallire l'action
 
 if __name__ == "__main__":
     asyncio.run(run())
