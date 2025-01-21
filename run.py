@@ -65,7 +65,7 @@ async def run():
         await main()
         
         # Carica il file su FTP
-        local_file = 'tiktok_trending.html'
+        local_file = 'tiktok_trending2.html'
         print("\nInizio caricamento FTP...")
         upload_to_ftp(local_file)
         
