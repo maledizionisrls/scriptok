@@ -11,7 +11,7 @@ FTP_CONFIG = {
     'user': 'scriptok@notizia.info',
     'password': 'scriptok2025##',
     'path': '/public_html',  # Directory corretta
-    'remote_filename': 'tiktok_trending.html'  # Nome fisso del file remoto
+    'remote_filename': 'tiktok_trending2.html'  # Nome fisso del file remoto
 }
 
 def upload_to_ftp(local_file):
