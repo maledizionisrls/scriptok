@@ -14,6 +14,9 @@ class HTMLGenerator:
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/react@17/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@17/umd/react-dom.production.min.js"></script>
+    <script src="analytics-component.js"></script>
     <style>
         * { 
             box-sizing: border-box;
@@ -167,6 +170,25 @@ class HTMLGenerator:
             font-size: 18px;
         }
 
+        .analytics-button {
+            display: block;
+            margin: 20px auto 0;
+            padding: 12px 24px;
+            background: linear-gradient(45deg, var(--primary), var(--secondary));
+            border: none;
+            border-radius: 25px;
+            color: var(--text);
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 16px;
+        }
+
+        .analytics-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 242, 234, 0.2);
+        }
+
         .pagination {
             display: flex;
             justify-content: center;
@@ -184,7 +206,7 @@ class HTMLGenerator:
             font-weight: 500;
             transition: all 0.2s ease;
             border: 1px solid rgba(255, 255, 255, 0.1);
-            font-size: 14px;
+            font-size: 16px;
         }
 
         .pagination button:not(:disabled):hover {
@@ -218,6 +240,10 @@ class HTMLGenerator:
             color: var(--text-secondary);
         }
 
+        .hidden {
+            display: none;
+        }
+
         @media (max-width: 768px) {
             .grid { 
                 grid-template-columns: 1fr;
@@ -246,7 +272,11 @@ class HTMLGenerator:
         <div class="header">
             <h1>ScripTok</h1>
             <p>I video più popolari in Italia</p>
+            <button onclick="toggleAnalytics()" class="analytics-button">
+                Analisi dei Trend
+            </button>
         </div>
+        <div id="analytics-root" class="hidden"></div>
         <div class="pagination"></div>
         <div class="pagination-info"></div>
         <div class="grid" id="videos-container">
@@ -308,8 +338,8 @@ class HTMLGenerator:
                 </div>
                 <div class="video-container">
                     <div class="video-embed">
-                        <iframe data-src="https://www.tiktok.com/embed/${{video.id}}"
-                                allowfullscreen scrolling="no"
+                        <iframe data-src="https://www.tiktok.com/embed/${{video.id}}" 
+                                allowfullscreen scrolling="no" 
                                 allow="encrypted-media;">
                         </iframe>
                     </div>
@@ -329,15 +359,26 @@ class HTMLGenerator:
         function updatePagination() {{
             const paginationElements = document.querySelectorAll('.pagination');
             const paginationHTML = `
-                <button onclick="changePage(1)" ${{currentPage === 1 ? 'disabled' : ''}}>Prima</button>
+                <button onclick="changePage(1)" ${{currentPage === 1 ? 'disabled' : ''}}>⏮️</button>
                 <button onclick="changePage(${{currentPage - 1}})" ${{currentPage === 1 ? 'disabled' : ''}}>⬅️</button>
                 <button onclick="changePage(${{currentPage + 1}})" ${{currentPage === totalPages ? 'disabled' : ''}}>➡️</button>
-                <button onclick="changePage(${{totalPages}})" ${{currentPage === totalPages ? 'disabled' : ''}}>Ultima</button>
+                <button onclick="changePage(${{totalPages}})" ${{currentPage === totalPages ? 'disabled' : ''}}>⏭️</button>
             `;
             paginationElements.forEach(el => el.innerHTML = paginationHTML);
             
             document.querySelector('.pagination-info').textContent = 
                 `Pagina ${{currentPage}} di ${{totalPages}} (${{videos.length}} video totali)`;
+        }}
+
+        function toggleAnalytics() {{
+            const analyticsRoot = document.getElementById('analytics-root');
+            if (!analyticsRoot.hasChildNodes()) {{
+                ReactDOM.render(
+                    React.createElement(TrendAnalytics, {{ videos: videos }}),
+                    analyticsRoot
+                );
+            }}
+            analyticsRoot.classList.toggle('hidden');
         }}
 
         function changePage(newPage) {{
