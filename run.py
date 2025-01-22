@@ -1,6 +1,5 @@
 import asyncio
 import os
-import time
 from ftplib import FTP
 from main import main
 from config import CONFIG
@@ -11,7 +10,7 @@ FTP_CONFIG = {
     'user': 'scriptok@notizia.info',
     'password': 'scriptok2025##',
     'path': '/public_html',
-    'remote_filename': CONFIG['REMOTE_FILENAME'],  # Usa il nome del file remoto specificato
+    'remote_filename': CONFIG['LOCAL_FILENAME'],  # Usa lo stesso nome del file locale
 }
 
 def upload_to_ftp(local_file):
@@ -40,7 +39,6 @@ def upload_to_ftp(local_file):
             print("\nFile presenti sul server prima dell'upload:")
             files_before = []
             ftp.retrlines('NLST', files_before.append)
-            print(files_before)
             
             # Carica il file
             print(f"\nInizio caricamento di {local_file}...")
@@ -48,14 +46,13 @@ def upload_to_ftp(local_file):
                 upload_result = ftp.storbinary(f'STOR {FTP_CONFIG["remote_filename"]}', f)
                 print(f"Risultato upload: {upload_result}")
             
-            # Aumenta il tempo di attesa per assicurarti che il file sia stato processato
-            time.sleep(10)
+            # Attendi un momento per assicurarti che il file sia stato processato
+            time.sleep(2)
             
             # Verifica il caricamento
             print("\nVerifica del caricamento...")
             files_after = []
             ftp.retrlines('NLST', files_after.append)
-            print(files_after)
             
             # Controlla se il file è presente
             if FTP_CONFIG['remote_filename'] in files_after:
@@ -67,8 +64,8 @@ def upload_to_ftp(local_file):
                         print("Upload completato con successo!")
                     else:
                         print("ATTENZIONE: Le dimensioni non corrispondono!")
-                except Exception as e:
-                    print(f"Errore durante la verifica della dimensione del file remoto: {e}")
+                except:
+                    print("Impossibile verificare la dimensione del file remoto")
             else:
                 # Lista tutti i file per debug
                 print("Contenuto directory dopo upload:")
