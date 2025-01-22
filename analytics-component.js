@@ -1,5 +1,5 @@
 window.TrendAnalytics = ({ videos = [] }) => {
-    const [showModal, setShowModal] = React.useState(true);
+    const [showModal, setShowModal] = React.useState(false);
     const [viewsDistribution, setViewsDistribution] = React.useState([]);
     const [categoryTrends, setCategoryTrends] = React.useState([]);
     const [contentInsights, setContentInsights] = React.useState([]);
