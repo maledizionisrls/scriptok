@@ -6,8 +6,8 @@ Configurazioni globali per il sistema di scraping TikTok
 # In config.py
 
 CONFIG = {
-    'PAGES_TO_ANALYZE': 27,
-    'OUTPUT_VIDEOS': 150,
+    'PAGES_TO_ANALYZE': 2,
+    'OUTPUT_VIDEOS': 15,
     'COUNTRY_CODE': 'IT',
     'TIME_PERIOD': '7',
     'PAGE_SIZE': 20,
