@@ -1,23 +1,13 @@
-import React, { useState, useEffect } from 'react';
-import { 
-    BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend,
-    LineChart, Line, PieChart, Pie, Cell, ResponsiveContainer,
-    AreaChart, Area
-} from 'recharts';
-import _ from 'lodash';
-
-const TrendAnalytics = ({ videos = [] }) => {
-    // Inizializza gli stati con array vuoti
-    const [viewsDistribution, setViewsDistribution] = useState([]);
-    const [categoryTrends, setCategoryTrends] = useState([]);
-    const [keywordTrends, setKeywordTrends] = useState([]);
-    const [timeAnalysis, setTimeAnalysis] = useState([]);
-    const [engagementScores, setEngagementScores] = useState([]);
+window.TrendAnalytics = ({ videos = [] }) => {
+    const [viewsDistribution, setViewsDistribution] = React.useState([]);
+    const [categoryTrends, setCategoryTrends] = React.useState([]);
+    const [keywordTrends, setKeywordTrends] = React.useState([]);
+    const [timeAnalysis, setTimeAnalysis] = React.useState([]);
+    const [engagementScores, setEngagementScores] = React.useState([]);
 
     const COLORS = ['#00F2EA', '#FF0050', '#8A2BE2', '#FF6B6B', '#4CAF50'];
 
-    useEffect(() => {
-        // Verifica che videos sia un array non vuoto
+    React.useEffect(() => {
         if (Array.isArray(videos) && videos.length > 0) {
             analyzeData();
         }
@@ -57,7 +47,6 @@ const TrendAnalytics = ({ videos = [] }) => {
             const views = parseViews(video.views);
             totalViews += views;
 
-            // Assicurati che categories sia un array
             const videoCategories = Array.isArray(video.categories) ? video.categories : [];
             
             videoCategories.forEach(category => {
@@ -90,7 +79,6 @@ const TrendAnalytics = ({ videos = [] }) => {
             if (!video) return;
             const views = parseViews(video.views);
             
-            // Assicurati che keywords sia un array
             const videoKeywords = Array.isArray(video.keywords) ? video.keywords : [];
             
             videoKeywords.forEach(keyword => {
@@ -148,111 +136,160 @@ const TrendAnalytics = ({ videos = [] }) => {
         setEngagementScores(engagementData);
     };
 
-    // Se non ci sono dati, mostra un messaggio
-    if (!Array.isArray(videos) || videos.length === 0) {
-        return (
-            <div className="w-full p-6 bg-gray-900 rounded-xl">
-                <p className="text-white text-center">Caricamento dati in corso...</p>
-            </div>
-        );
-    }
+    return React.createElement('div', { 
+        className: 'w-full p-6 bg-gray-900 rounded-xl' 
+    }, 
+        React.createElement('div', { 
+            className: 'grid grid-cols-1 lg:grid-cols-2 gap-8' 
+        },
+            // Top Video Performance
+            React.createElement('div', {
+                className: 'bg-gray-800 p-6 rounded-xl'
+            },
+                React.createElement('h3', {
+                    className: 'text-xl font-bold mb-4 text-white'
+                }, 'Top 10 Video per Visualizzazioni'),
+                React.createElement(Recharts.ResponsiveContainer, {
+                    width: '100%',
+                    height: 300
+                },
+                    React.createElement(Recharts.BarChart, {
+                        data: viewsDistribution
+                    },
+                        React.createElement(Recharts.CartesianGrid, {
+                            strokeDasharray: '3 3'
+                        }),
+                        React.createElement(Recharts.XAxis, {
+                            dataKey: 'name',
+                            angle: -45,
+                            textAnchor: 'end',
+                            height: 100
+                        }),
+                        React.createElement(Recharts.YAxis),
+                        React.createElement(Recharts.Tooltip),
+                        React.createElement(Recharts.Bar, {
+                            dataKey: 'views',
+                            fill: '#00F2EA'
+                        })
+                    )
+                )
+            ),
 
-    return (
-        <div className="w-full p-6 bg-gray-900 rounded-xl">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                {/* Top Video Performance */}
-                <div className="bg-gray-800 p-6 rounded-xl">
-                    <h3 className="text-xl font-bold mb-4 text-white">Top 10 Video per Visualizzazioni</h3>
-                    <ResponsiveContainer width="100%" height={300}>
-                        <BarChart data={viewsDistribution}>
-                            <CartesianGrid strokeDasharray="3 3" />
-                            <XAxis dataKey="name" angle={-45} textAnchor="end" height={100} />
-                            <YAxis />
-                            <Tooltip />
-                            <Bar dataKey="views" fill="#00F2EA" />
-                        </BarChart>
-                    </ResponsiveContainer>
-                </div>
+            // Category Distribution
+            React.createElement('div', {
+                className: 'bg-gray-800 p-6 rounded-xl'
+            },
+                React.createElement('h3', {
+                    className: 'text-xl font-bold mb-4 text-white'
+                }, 'Distribuzione Categorie'),
+                React.createElement(Recharts.ResponsiveContainer, {
+                    width: '100%',
+                    height: 300
+                },
+                    React.createElement(Recharts.PieChart, {},
+                        React.createElement(Recharts.Pie, {
+                            data: categoryTrends,
+                            dataKey: 'views',
+                            nameKey: 'name',
+                            cx: '50%',
+                            cy: '50%',
+                            labelLine: false,
+                            label: ({ name, percentage }) => `${name} (${percentage}%)`
+                        },
+                            categoryTrends.map((entry, index) =>
+                                React.createElement(Recharts.Cell, {
+                                    key: `cell-${index}`,
+                                    fill: COLORS[index % COLORS.length]
+                                })
+                            )
+                        ),
+                        React.createElement(Recharts.Tooltip)
+                    )
+                )
+            ),
 
-                {/* Category Distribution */}
-                <div className="bg-gray-800 p-6 rounded-xl">
-                    <h3 className="text-xl font-bold mb-4 text-white">Distribuzione Categorie</h3>
-                    <ResponsiveContainer width="100%" height={300}>
-                        <PieChart>
-                            <Pie
-                                data={categoryTrends}
-                                dataKey="views"
-                                nameKey="name"
-                                cx="50%"
-                                cy="50%"
-                                labelLine={false}
-                                label={({ name, percentage }) => `${name} (${percentage}%)`}
-                            >
-                                {categoryTrends.map((entry, index) => (
-                                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                                ))}
-                            </Pie>
-                            <Tooltip />
-                        </PieChart>
-                    </ResponsiveContainer>
-                </div>
+            // Keyword Performance
+            React.createElement('div', {
+                className: 'bg-gray-800 p-6 rounded-xl'
+            },
+                React.createElement('h3', {
+                    className: 'text-xl font-bold mb-4 text-white'
+                }, 'Performance Keywords'),
+                React.createElement(Recharts.ResponsiveContainer, {
+                    width: '100%',
+                    height: 300
+                },
+                    React.createElement(Recharts.AreaChart, {
+                        data: keywordTrends
+                    },
+                        React.createElement(Recharts.CartesianGrid, {
+                            strokeDasharray: '3 3'
+                        }),
+                        React.createElement(Recharts.XAxis, {
+                            dataKey: 'name'
+                        }),
+                        React.createElement(Recharts.YAxis),
+                        React.createElement(Recharts.Tooltip),
+                        React.createElement(Recharts.Area, {
+                            type: 'monotone',
+                            dataKey: 'avgViews',
+                            stroke: '#FF0050',
+                            fill: '#FF0050',
+                            fillOpacity: 0.3
+                        })
+                    )
+                )
+            ),
 
-                {/* Keyword Performance */}
-                <div className="bg-gray-800 p-6 rounded-xl">
-                    <h3 className="text-xl font-bold mb-4 text-white">Performance Keywords</h3>
-                    <ResponsiveContainer width="100%" height={300}>
-                        <AreaChart data={keywordTrends}>
-                            <CartesianGrid strokeDasharray="3 3" />
-                            <XAxis dataKey="name" />
-                            <YAxis />
-                            <Tooltip />
-                            <Area type="monotone" dataKey="avgViews" stroke="#FF0050" fill="#FF0050" fillOpacity={0.3} />
-                        </AreaChart>
-                    </ResponsiveContainer>
-                </div>
-
-                {/* Trend Analysis */}
-                <div className="bg-gray-800 p-6 rounded-xl">
-                    <h3 className="text-xl font-bold mb-4 text-white">Analisi Trend</h3>
-                    <ResponsiveContainer width="100%" height={300}>
-                        <LineChart data={timeAnalysis}>
-                            <CartesianGrid strokeDasharray="3 3" />
-                            <XAxis dataKey="name" />
-                            <YAxis />
-                            <Tooltip />
-                            <Line type="monotone" dataKey="trend" stroke="#00F2EA" />
-                            <Line type="monotone" dataKey="growth" stroke="#FF0050" />
-                        </LineChart>
-                    </ResponsiveContainer>
-                </div>
-
-                {/* Engagement Stats Table */}
-                <div className="bg-gray-800 p-6 rounded-xl col-span-2">
-                    <h3 className="text-xl font-bold mb-4 text-white">Statistiche di Engagement</h3>
-                    <div className="overflow-x-auto">
-                        <table className="w-full text-white">
-                            <thead>
-                                <tr className="border-b border-gray-700">
-                                    <th className="py-2 px-4 text-left">Keyword</th>
-                                    <th className="py-2 px-4 text-left">Score Engagement</th>
-                                    <th className="py-2 px-4 text-left">Frequenza</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {engagementScores.map((score, idx) => (
-                                    <tr key={idx} className="border-b border-gray-700">
-                                        <td className="py-2 px-4">{score.name}</td>
-                                        <td className="py-2 px-4">{score.score}</td>
-                                        <td className="py-2 px-4">{score.frequency}</td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-        </div>
+            // Engagement Stats Table
+            React.createElement('div', {
+                className: 'bg-gray-800 p-6 rounded-xl col-span-2'
+            },
+                React.createElement('h3', {
+                    className: 'text-xl font-bold mb-4 text-white'
+                }, 'Statistiche di Engagement'),
+                React.createElement('div', {
+                    className: 'overflow-x-auto'
+                },
+                    React.createElement('table', {
+                        className: 'w-full text-white'
+                    },
+                        React.createElement('thead', {},
+                            React.createElement('tr', {
+                                className: 'border-b border-gray-700'
+                            },
+                                React.createElement('th', {
+                                    className: 'py-2 px-4 text-left'
+                                }, 'Keyword'),
+                                React.createElement('th', {
+                                    className: 'py-2 px-4 text-left'
+                                }, 'Score Engagement'),
+                                React.createElement('th', {
+                                    className: 'py-2 px-4 text-left'
+                                }, 'Frequenza')
+                            )
+                        ),
+                        React.createElement('tbody', {},
+                            engagementScores.map((score, idx) =>
+                                React.createElement('tr', {
+                                    key: idx,
+                                    className: 'border-b border-gray-700'
+                                },
+                                    React.createElement('td', {
+                                        className: 'py-2 px-4'
+                                    }, score.name),
+                                    React.createElement('td', {
+                                        className: 'py-2 px-4'
+                                    }, score.score),
+                                    React.createElement('td', {
+                                        className: 'py-2 px-4'
+                                    }, score.frequency)
+                                )
+                            )
+                        )
+                    )
+                )
+            )
+        )
     );
 };
-
-export default TrendAnalytics;
