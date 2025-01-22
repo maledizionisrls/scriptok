@@ -4,9 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Analisi Trend</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
-    <script src="trend_data.js"></script>
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
+    <script defer src="trend_data.js"></script>
     <style>
         :root {
             --primary: #00f2ea;
@@ -42,6 +44,7 @@
             padding: 30px;
             position: relative;
             border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
         }
 
         .close-button {
@@ -107,6 +110,7 @@
             justify-content: center;
             gap: 10px;
             padding: 20px;
+            overflow: hidden;
         }
 
         .word-cloud span {
@@ -119,6 +123,7 @@
 
         .word-cloud span:hover {
             transform: scale(1.1);
+            filter: brightness(1.2);
         }
 
         .pie-chart, .bar-chart {
@@ -142,12 +147,25 @@
             gap: 5px;
             font-size: 12px;
             color: var(--text-secondary);
+            background: rgba(255, 255, 255, 0.05);
+            padding: 4px 8px;
+            border-radius: 4px;
         }
 
         .legend-color {
             width: 12px;
             height: 12px;
             border-radius: 3px;
+        }
+
+        .error-message {
+            text-align: center;
+            color: var(--text-secondary);
+            padding: 20px;
+            font-size: 14px;
+            background: rgba(255, 0, 0, 0.1);
+            border-radius: 8px;
+            margin-top: 10px;
         }
 
         @media (max-width: 768px) {
@@ -163,6 +181,14 @@
             .chart-card {
                 padding: 15px;
             }
+
+            .title {
+                font-size: 20px;
+            }
+
+            .chart-title {
+                font-size: 16px;
+            }
         }
     </style>
 </head>
@@ -175,56 +201,88 @@
             <div class="chart-card">
                 <h2 class="chart-title">Parole più utilizzate per visualizzazioni</h2>
                 <div id="wordCloud" class="word-cloud"></div>
+                <div id="wordCloudError" class="error-message" style="display: none;">
+                    Dati insufficienti per la nuvola di parole
+                </div>
             </div>
             
             <div class="chart-card">
                 <h2 class="chart-title">Distribuzione Parole Chiave</h2>
                 <div id="keywordsPie" class="pie-chart"></div>
+                <div id="keywordsError" class="error-message" style="display: none;">
+                    Dati insufficienti per il grafico a torta
+                </div>
             </div>
 
             <div class="chart-card" style="grid-column: span 2;">
                 <h2 class="chart-title">Media Visualizzazioni per Categoria</h2>
                 <div id="categoryChart" class="bar-chart"></div>
+                <div id="categoryError" class="error-message" style="display: none;">
+                    Dati insufficienti per il grafico a barre
+                </div>
             </div>
         </div>
     </div>
 
     <script>
-        // Funzione per chiudere la modale
-        function closeModal() {
-            window.parent.postMessage('closeModal', '*');
+        function checkD3() {
+            if (typeof d3 === 'undefined') {
+                console.error('D3.js non caricato');
+                return false;
+            }
+            return true;
         }
 
-        // Inizializzazione
-        document.addEventListener('DOMContentLoaded', function() {
-            const analyzer = new window.TrendAnalyzer();
-            const data = analyzer.getData();
-            
-            // Renderizza word cloud
-            const wordCloud = document.getElementById('wordCloud');
-            data.wordCloud.forEach(word => {
+        function checkData() {
+            if (typeof window.TrendAnalyzer === 'undefined') {
+                console.error('TrendAnalyzer non caricato');
+                return false;
+            }
+            return true;
+        }
+
+        function closeModal() {
+            try {
+                window.parent.postMessage('closeModal', '*');
+            } catch (e) {
+                console.error('Errore nella chiusura della modale:', e);
+                // Fallback
+                window.close();
+            }
+        }
+
+        function renderWordCloud(data) {
+            const container = document.getElementById('wordCloud');
+            container.innerHTML = ''; // Pulisci il contenitore
+
+            data.forEach(word => {
                 const span = document.createElement('span');
                 span.textContent = word.text;
                 span.style.fontSize = `${word.size}px`;
-                span.style.color = `hsl(${Math.random() * 360}, 70%, 60%)`;
-                wordCloud.appendChild(span);
+                // Usa colori del brand TikTok con variazioni
+                const hue = Math.random() < 0.5 ? '183' : '341'; // Tra ciano e rosa
+                const saturation = 70 + Math.random() * 20;
+                const lightness = 50 + Math.random() * 20;
+                span.style.color = `hsl(${hue}, ${saturation}%, ${lightness}%)`;
+                container.appendChild(span);
             });
+        }
 
-            // Renderizza grafico a torta keywords
-            const pieChart = document.getElementById('keywordsPie');
-            renderPieChart(pieChart, data.keywords);
-
-            // Renderizza grafico categorie
-            const categoryChart = document.getElementById('categoryChart');
-            renderBarChart(categoryChart, data.categories);
-        });
-
-        // Funzioni di rendering grafici
-        function renderPieChart(container, data) {
-            // Implementazione D3.js per il pie chart
+        function renderPieChart(data) {
+            const container = document.getElementById('keywordsPie');
             const width = container.clientWidth;
             const height = container.clientHeight;
-            const radius = Math.min(width, height) / 2;
+            const radius = Math.min(width, height) / 2.5;
+
+            // Pulisci il contenitore
+            container.innerHTML = '';
+
+            const svg = d3.select(container)
+                .append('svg')
+                .attr('width', width)
+                .attr('height', height)
+                .append('g')
+                .attr('transform', `translate(${width/2},${height/2})`);
 
             const color = d3.scaleOrdinal()
                 .domain(data.map(d => d.keyword))
@@ -238,18 +296,11 @@
                 .innerRadius(radius * 0.5)
                 .outerRadius(radius * 0.8);
 
-            const svg = d3.select(container)
-                .append('svg')
-                .attr('width', width)
-                .attr('height', height)
-                .append('g')
-                .attr('transform', `translate(${width/2},${height/2})`);
-
+            // Crea gli archi con animazione
             const arcs = svg.selectAll('arc')
                 .data(pie(data))
                 .enter()
-                .append('g')
-                .attr('class', 'arc');
+                .append('g');
 
             arcs.append('path')
                 .attr('d', arc)
@@ -285,10 +336,14 @@
             });
         }
 
-        function renderBarChart(container, data) {
+        function renderBarChart(data) {
+            const container = document.getElementById('categoryChart');
             const width = container.clientWidth;
             const height = container.clientHeight;
             const margin = {top: 20, right: 20, bottom: 60, left: 60};
+
+            // Pulisci il contenitore
+            container.innerHTML = '';
 
             const svg = d3.select(container)
                 .append('svg')
@@ -304,7 +359,7 @@
                 .domain([0, d3.max(data, d => d.avgViews)])
                 .range([height - margin.bottom, margin.top]);
 
-            // Assi
+            // Aggiungi assi
             svg.append('g')
                 .attr('transform', `translate(0,${height - margin.bottom})`)
                 .call(d3.axisBottom(x))
@@ -321,7 +376,7 @@
                 .selectAll('text')
                 .style('fill', '#a0a0a0');
 
-            // Barre
+            // Aggiungi barre con animazione
             svg.selectAll('rect')
                 .data(data)
                 .enter()
@@ -330,11 +385,53 @@
                 .attr('y', height - margin.bottom)
                 .attr('width', x.bandwidth())
                 .attr('height', 0)
-                .attr('fill', (d, i) => `hsl(${i * 360/data.length}, 70%, 60%)`)
+                .attr('fill', (d, i) => {
+                    // Alterna tra i colori del brand TikTok
+                    return i % 2 === 0 ? '#00f2ea' : '#ff0050';
+                })
                 .transition()
                 .duration(1000)
                 .attr('y', d => y(d.avgViews))
                 .attr('height', d => height - margin.bottom - y(d.avgViews));
+        }
+
+        function safeInitialize() {
+            if (!checkD3() || !checkData()) {
+                setTimeout(safeInitialize, 100);
+                return;
+            }
+
+            try {
+                const analyzer = new window.TrendAnalyzer();
+                const data = analyzer.getData();
+                
+                if (data.wordCloud && data.wordCloud.length > 0) {
+                    renderWordCloud(data.wordCloud);
+                } else {
+                    document.getElementById('wordCloudError').style.display = 'block';
+                }
+
+                if (data.keywords && data.keywords.length > 0) {
+                    renderPieChart(data.keywords);
+                } else {
+                    document.getElementById('keywordsError').style.display = 'block';
+                }
+
+                if (data.categories && data.categories.length > 0) {
+                    renderBarChart(data.categories);
+                } else {
+                    document.getElementById('categoryError').style.display = 'block';
+                }
+            } catch (e) {
+                console.error('Errore nell\'inizializzazione:', e);
+            }
+        }
+
+        // Avvia l'inizializzazione quando il documento è pronto
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', safeInitialize);
+        } else {
+            safeInitialize();
         }
     </script>
 </body>
