@@ -37,28 +37,39 @@ def upload_to_ftp(local_file):
             
             # Lista i file prima dell'upload
             print("\nFile presenti sul server prima dell'upload:")
-            files_before = ftp.nlst()
-            for f in files_before:
-                print(f"- {f}")
+            files_before = []
+            ftp.retrlines('NLST', files_before.append)
             
             # Carica il file
             print(f"\nInizio caricamento di {local_file}...")
             with open(local_file, 'rb') as f:
-                # Usa STOR con il nome del file remoto
                 upload_result = ftp.storbinary(f'STOR {FTP_CONFIG["remote_filename"]}', f)
                 print(f"Risultato upload: {upload_result}")
             
+            # Attendi un momento per assicurarti che il file sia stato processato
+            time.sleep(2)
+            
             # Verifica il caricamento
             print("\nVerifica del caricamento...")
-            files_after = ftp.nlst()
+            files_after = []
+            ftp.retrlines('NLST', files_after.append)
+            
+            # Controlla se il file è presente
             if FTP_CONFIG['remote_filename'] in files_after:
-                remote_size = ftp.size(FTP_CONFIG['remote_filename'])
-                print(f"File trovato sul server! Dimensione: {remote_size} bytes")
-                if remote_size == os.path.getsize(local_file):
-                    print("Le dimensioni corrispondono - Upload completato con successo!")
-                else:
-                    print("ATTENZIONE: Le dimensioni non corrispondono!")
+                print("File trovato sul server!")
+                try:
+                    size = ftp.size(FTP_CONFIG['remote_filename'])
+                    print(f"Dimensione remota: {size} bytes")
+                    if size == os.path.getsize(local_file):
+                        print("Upload completato con successo!")
+                    else:
+                        print("ATTENZIONE: Le dimensioni non corrispondono!")
+                except:
+                    print("Impossibile verificare la dimensione del file remoto")
             else:
+                # Lista tutti i file per debug
+                print("Contenuto directory dopo upload:")
+                ftp.retrlines('LIST')
                 raise Exception("File non trovato sul server dopo l'upload")
                 
     except Exception as e:
