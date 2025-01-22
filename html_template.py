@@ -104,14 +104,14 @@ class HTMLGenerator:
         }
 
         .video-url a:hover {
-            color: var(--secondary);
+            color: var (--secondary);
         }
 
         .video-container {
             margin-bottom: 20px;
             border-radius: 12px;
             overflow: hidden;
-            background: var(--bg-dark);
+            background: var (--bg-dark);
         }
 
         .video-embed {
@@ -133,7 +133,7 @@ class HTMLGenerator:
         .tag { 
             display: inline-block;
             background: rgba(0, 242, 234, 0.1);
-            color: var(--primary);
+            color: var (--primary);
             padding: 6px 12px;
             border-radius: 20px;
             margin: 4px;
@@ -153,22 +153,22 @@ class HTMLGenerator:
             margin-bottom: 20px;
             position: relative;
             overflow: hidden;
-            background: linear-gradient(135deg, var(--card-bg) 0%, var(--bg-dark) 100%);
+            background: linear-gradient(135deg, var (--card-bg) 0%, var (--bg-dark) 100%);
             border-radius: 20px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba (255, 255, 255, 0.1);
         }
 
         .header h1 {
             font-size: 48px;
             font-weight: 700;
             margin-bottom: 12px;
-            background: linear-gradient(45deg, var(--primary), var(--secondary));
+            background: linear-gradient(45deg, var (--primary), var (--secondary));
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
 
         .header p {
-            color: var(--text-secondary);
+            color: var (--text-secondary);
             font-size: 18px;
         }
 
@@ -176,10 +176,10 @@ class HTMLGenerator:
             display: block;
             margin: 20px auto 0;
             padding: 12px 24px;
-            background: linear-gradient(45deg, var(--primary), var(--secondary));
+            background: linear-gradient(45deg, var (--primary), var (--secondary));
             border: none;
             border-radius: 25px;
-            color: var(--text);
+            color: var (--text);
             font-weight: 600;
             cursor: pointer;
             transition: all 0.3s ease;
@@ -201,23 +201,23 @@ class HTMLGenerator:
         .pagination button {
             padding: 12px 24px;
             border: none;
-            background: var(--card-bg);
-            color: var(--text);
+            background: var (--card-bg);
+            color: var (--text);
             border-radius: 12px;
             cursor: pointer;
             font-weight: 500;
             transition: all 0.2s ease;
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba (255, 255, 255, 0.1);
             font-size: 16px;
         }
 
         .pagination button:not(:disabled):hover {
-            background: var(--card-hover);
+            background: var (--card-hover);
             transform: translateY(-2px);
         }
 
         .pagination button:disabled {
-            background: rgba(255, 255, 255, 0.1);
+            background: rgba (255, 255, 255, 0.1);
             cursor: not-allowed;
             opacity: 0.5;
         }
@@ -225,21 +225,21 @@ class HTMLGenerator:
         .pagination-info {
             text-align: center;
             margin: 20px 0;
-            color: var(--text-secondary);
+            color: var (--text-secondary);
             font-size: 14px;
         }
 
         .metadata {
             margin-top: 16px;
             padding: 16px;
-            background: rgba(255, 255, 255, 0.05);
+            background: rgba (255, 255, 255, 0.05);
             border-radius: 12px;
         }
 
         .metadata strong {
             display: block;
             margin-bottom: 8px;
-            color: var(--text-secondary);
+            color: var (--text-secondary);
         }
 
         .hidden {
@@ -253,7 +253,7 @@ class HTMLGenerator:
             left: 0;
             right: 0;
             bottom: 0;
-            background-color: rgba(0, 0, 0, 0.75);
+            background-color: rgba (0, 0, 0, 0.75);
             z-index: 999;
             display: flex;
             align-items: center;
@@ -261,7 +261,7 @@ class HTMLGenerator:
         }
 
         .modal-content {
-            background-color: var(--card-bg);
+            background-color: var (--card-bg);
             padding: 30px;
             border-radius: 16px;
             width: 90%;
@@ -269,8 +269,8 @@ class HTMLGenerator:
             max-height: 90vh;
             overflow-y: auto;
             position: relative;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba (255, 255, 255, 0.1);
+            box-shadow: 0 4px 20px rgba (0, 0, 0, 0.3);
         }
 
         .modal-close {
@@ -279,7 +279,7 @@ class HTMLGenerator:
             right: 20px;
             background: none;
             border: none;
-            color: var(--text);
+            color: var (--text);
             font-size: 24px;
             cursor: pointer;
             padding: 5px;
