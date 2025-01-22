@@ -1,5 +1,6 @@
 import asyncio
 import os
+import time
 from ftplib import FTP
 from main import main
 from config import CONFIG
@@ -47,8 +48,8 @@ def upload_to_ftp(local_file):
                 upload_result = ftp.storbinary(f'STOR {FTP_CONFIG["remote_filename"]}', f)
                 print(f"Risultato upload: {upload_result}")
             
-            # Attendi un momento per assicurarti che il file sia stato processato
-            time.sleep(2)
+            # Aumenta il tempo di attesa per assicurarti che il file sia stato processato
+            time.sleep(10)
             
             # Verifica il caricamento
             print("\nVerifica del caricamento...")
