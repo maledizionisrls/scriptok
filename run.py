@@ -4,15 +4,15 @@ Script di esecuzione e upload per Python Anywhere
 import asyncio
 from ftplib import FTP
 from main import main
-from config import CONFIG  # Importa la configurazione
+from config import CONFIG
 
 # Configurazione FTP
 FTP_CONFIG = {
     'host': 'notizia.info',
     'user': 'scriptok@notizia.info',
     'password': 'scriptok2025##',
-    'path': '/public_html',  # Directory corretta
-    'remote_filename': CONFIG['OUTPUT_FILENAME'],  # Nome del file remoto dinamico
+    'path': '/public_html',
+    'remote_filename': CONFIG['REMOTE_FILENAME'],  # Usa il nome file remoto dalla config
 }
 
 def upload_to_ftp(local_file):
@@ -41,6 +41,8 @@ def upload_to_ftp(local_file):
             with open(local_file, 'rb') as f:
                 ftp.storbinary(f'STOR {FTP_CONFIG["remote_filename"]}', f)
             
+            print(f"Tentativo di caricare il file locale '{local_file}' come '{FTP_CONFIG['remote_filename']}'")
+            
             # Verifica che il file sia stato caricato
             file_list = ftp.nlst()
             if FTP_CONFIG['remote_filename'] in file_list:
@@ -57,7 +59,7 @@ def upload_to_ftp(local_file):
                 
     except Exception as e:
         print(f"Errore durante il caricamento FTP: {str(e)}")
-        raise  # Rilancia l'errore per gestirlo nel codice principale
+        raise
 
 async def run():
     try:
@@ -65,9 +67,9 @@ async def run():
         print("Avvio dello script principale...")
         await main()
         
-        # Carica il file su FTP
-        local_file = CONFIG['OUTPUT_FILENAME']  # Usa il nome del file dinamico
-        print("\nInizio caricamento FTP...")
+        # Usa il nome del file locale dalla config
+        local_file = CONFIG['LOCAL_FILENAME']
+        print(f"\nInizio caricamento FTP del file '{local_file}'...")
         upload_to_ftp(local_file)
         
         print("\nOperazione completata con successo!")
