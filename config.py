@@ -7,15 +7,15 @@ Configurazioni globali per il sistema di scraping TikTok
 
 CONFIG = {
     'PAGES_TO_ANALYZE': 27,
-    'OUTPUT_VIDEOS': 50,
+    'OUTPUT_VIDEOS': 150,
     'COUNTRY_CODE': 'IT',
     'TIME_PERIOD': '7',
     'PAGE_SIZE': 20,
     'DELAY': 0.01,
-    'MAX_AUTH_RETRIES': 3,
-    'AUTH_RETRY_DELAY': 2,
-    'LOCAL_FILENAME': 'scriptok2.html',   # Aggiunto per chiarezza
-    'REMOTE_FILENAME': 'scriptok2.html',  # Aggiunto per FTP
+    'MAX_AUTH_RETRIES': 5,
+    'AUTH_RETRY_DELAY': 3,
+    'LOCAL_FILENAME': 'scriptok.html',   # Aggiunto per chiarezza
+    'REMOTE_FILENAME': 'scriptok.html',  # Aggiunto per FTP
     'VIDEOS_PER_PAGE': 9,
 }
 
