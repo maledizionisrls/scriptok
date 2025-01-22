@@ -330,8 +330,8 @@ class HTMLGenerator:
             const paginationElements = document.querySelectorAll('.pagination');
             const paginationHTML = `
                 <button onclick="changePage(1)" ${{currentPage === 1 ? 'disabled' : ''}}>Prima</button>
-                <button onclick="changePage(${{currentPage - 1}})" ${{currentPage === 1 ? 'disabled' : ''}}>Precedente</button>
-                <button onclick="changePage(${{currentPage + 1}})" ${{currentPage === totalPages ? 'disabled' : ''}}>Successiva</button>
+                <button onclick="changePage(${{currentPage - 1}})" ${{currentPage === 1 ? 'disabled' : ''}}>⬅️</button>
+                <button onclick="changePage(${{currentPage + 1}})" ${{currentPage === totalPages ? 'disabled' : ''}}>➡️</button>
                 <button onclick="changePage(${{totalPages}})" ${{currentPage === totalPages ? 'disabled' : ''}}>Ultima</button>
             `;
             paginationElements.forEach(el => el.innerHTML = paginationHTML);
