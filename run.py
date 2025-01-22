@@ -1,149 +1,90 @@
-"""
-Gestione dello scraping dei video TikTok
-"""
-from typing import List, Dict, Optional
-import pyktok as pyk
-import json
-import time
-import requests
-from playwright.async_api import async_playwright
 import asyncio
-from config import CONFIG, BROWSER_CONFIG, API_CONFIG
+import os
+from ftplib import FTP
+from main import main
+from config import CONFIG
 
-class TikTokScraper:
-    def __init__(self):
-        self.config = CONFIG
-        self.browser_config = BROWSER_CONFIG
-        self.api_config = API_CONFIG
+# Configurazione FTP
+FTP_CONFIG = {
+    'host': 'notizia.info',
+    'user': 'scriptok@notizia.info',
+    'password': 'scriptok2025##',
+    'path': '/public_html',
+    'remote_filename': CONFIG['LOCAL_FILENAME'],  # Usa lo stesso nome del file locale
+}
 
-    async def extract_auth_params(self) -> Optional[Dict[str, str]]:
-        """Estrae i parametri di autenticazione necessari"""
-        for attempt in range(self.config['MAX_AUTH_RETRIES']):
-            target_params = None
-            request_event = asyncio.Event()
+def upload_to_ftp(local_file):
+    """
+    Carica un file nella directory specificata del server FTP
+    """
+    print(f"\nInizio processo di upload FTP per {local_file}")
+    print(f"Dimensione locale del file: {os.path.getsize(local_file)} bytes")
+    
+    try:
+        with FTP(FTP_CONFIG['host']) as ftp:
+            # Mostra informazioni di debug FTP
+            ftp.set_debuglevel(2)
             
-            async with async_playwright() as p:
-                print(f"Tentativo {attempt + 1} di {self.config['MAX_AUTH_RETRIES']} per l'estrazione dei parametri di autenticazione...")
-                browser = None
-                try:
-                    browser = await p.chromium.launch(headless=True)
-                    context = await browser.new_context(
-                        viewport=self.browser_config['viewport'],
-                        user_agent=self.browser_config['user_agent']
-                    )
-                    
-                    page = await context.new_page()
-                    
-                    async def handle_request(request):
-                        if "creative_radar_api/v1/popular_trend/list" in request.url:
-                            headers = request.headers
-                            nonlocal target_params
-                            target_params = {
-                                'timestamp': headers.get('timestamp'),
-                                'user-sign': headers.get('user-sign'),
-                                'web-id': headers.get('anonymous-user-id', '')
-                            }
-                            request_event.set()
-
-                    page.on("request", handle_request)
-
-                    try:
-                        navigation_task = asyncio.create_task(
-                            page.goto(self.api_config['base_referer'])
-                        )
-                        await asyncio.wait_for(request_event.wait(), timeout=7)
-                        await navigation_task
-                        
-                        if target_params:
-                            print("Parametri di autenticazione estratti con successo!")
-                            return target_params
-                            
-                    except Exception as e:
-                        print(f"Errore durante la navigazione nel tentativo {attempt + 1}: {e}")
-                    
-                finally:
-                    if browser:
-                        await browser.close()
+            # Login
+            print("\nTentativo di login...")
+            ftp.login(user=FTP_CONFIG['user'], passwd=FTP_CONFIG['password'])
+            print("Login effettuato con successo")
             
-            if attempt < self.config['MAX_AUTH_RETRIES'] - 1:
-                print(f"Attendo {self.config['AUTH_RETRY_DELAY']} secondi prima del prossimo tentativo...")
-                await asyncio.sleep(self.config['AUTH_RETRY_DELAY'])
+            # Cambia directory
+            print(f"\nCambio directory in {FTP_CONFIG['path']}...")
+            ftp.cwd(FTP_CONFIG['path'])
+            print("Directory cambiata con successo")
+            
+            # Lista i file prima dell'upload
+            print("\nFile presenti sul server prima dell'upload:")
+            files_before = ftp.nlst()
+            for f in files_before:
+                print(f"- {f}")
+            
+            # Carica il file
+            print(f"\nInizio caricamento di {local_file}...")
+            with open(local_file, 'rb') as f:
+                # Usa STOR con il nome del file remoto
+                upload_result = ftp.storbinary(f'STOR {FTP_CONFIG["remote_filename"]}', f)
+                print(f"Risultato upload: {upload_result}")
+            
+            # Verifica il caricamento
+            print("\nVerifica del caricamento...")
+            files_after = ftp.nlst()
+            if FTP_CONFIG['remote_filename'] in files_after:
+                remote_size = ftp.size(FTP_CONFIG['remote_filename'])
+                print(f"File trovato sul server! Dimensione: {remote_size} bytes")
+                if remote_size == os.path.getsize(local_file):
+                    print("Le dimensioni corrispondono - Upload completato con successo!")
+                else:
+                    print("ATTENZIONE: Le dimensioni non corrispondono!")
+            else:
+                raise Exception("File non trovato sul server dopo l'upload")
+                
+    except Exception as e:
+        print(f"\nErrore durante l'upload FTP: {str(e)}")
+        raise
+
+async def run():
+    try:
+        # Esegui lo script principale
+        print("Avvio dello script principale...")
+        await main()
         
-        print("Impossibile ottenere i parametri di autenticazione dopo tutti i tentativi")
-        return None
+        # Verifica il file locale
+        local_file = CONFIG['LOCAL_FILENAME']
+        if not os.path.exists(local_file):
+            raise FileNotFoundError(f"File {local_file} non trovato!")
+        
+        # Upload FTP
+        upload_to_ftp(local_file)
+        
+    except Exception as e:
+        print(f"Errore durante l'esecuzione: {e}")
+        import traceback
+        print("\nStack trace completo:")
+        print(traceback.format_exc())
+        raise
 
-    def fetch_tiktok_page(self, page: int, params: Dict, headers: Dict) -> List[Dict]:
-        """Recupera una singola pagina di video"""
-        params = params.copy()
-        params['page'] = str(page)
-
-        try:
-            response = requests.get(
-                self.api_config['trend_list_url'],
-                headers=headers,
-                params=params,
-                timeout=7
-            )
-            if response.status_code == 200:
-                data = response.json()
-                if 'data' in data and isinstance(data['data'], dict):
-                    videos = data['data'].get('videos', [])
-                    print(f"Pagina {page} caricata")
-                    return videos
-                return []
-        except Exception as e:
-            print(f"Errore pagina {page}: {str(e)}")
-            return []
-
-    def extract_video_data(self, url: str) -> Optional[Dict]:
-        """Estrae i dati di un singolo video"""
-        try:
-            tt_json = pyk.alt_get_tiktok_json(url)
-            
-            if tt_json is None:
-                return {
-                    'titolo': 'Video non disponibile',
-                    'creator': 'N/A',
-                    'url': url,
-                    'views': 'N/A',
-                    'categorie': 'N/A',
-                    'keywords': 'N/A'
-                }
-            
-            if isinstance(tt_json, str):
-                try:
-                    tt_json = json.loads(tt_json)
-                except json.JSONDecodeError:
-                    return None
-
-            default_scope = tt_json.get('__DEFAULT_SCOPE__', {})
-            webapp_detail = default_scope.get('webapp.video-detail', {})
-            item_info = webapp_detail.get('itemInfo', {}).get('itemStruct', {})
-            
-            stats = item_info.get('stats', {})
-            views = stats.get('playCount', 'N/A') if isinstance(stats, dict) else 'N/A'
-            views_formatted = self.format_number(views) if views != 'N/A' else 'N/A'
-            
-            div_labels = item_info.get('diversificationLabels', [])
-            sug_words = item_info.get('suggestedWords', [])
-            
-            return {
-                'titolo': item_info.get('desc', 'N/A'),
-                'creator': item_info.get('author', {}).get('nickname', 'N/A'),
-                'url': url,
-                'views': views_formatted,
-                'categorie': ', '.join(div_labels) if div_labels else 'N/A',
-                'keywords': ', '.join(sug_words) if sug_words else 'N/A'
-            }
-            
-        except Exception as e:
-            print(f"Errore nell'estrazione dei dati per {url}: {str(e)}")
-            return None
-
-    @staticmethod
-    def format_number(num):
-        """Formatta i numeri con i separatori delle migliaia"""
-        try:
-            return "{:,}".format(int(num)).replace(",", ".")
-        except:
-            return str(num)
+if __name__ == "__main__":
+    asyncio.run(run())
