@@ -1,6 +1,3 @@
-"""
-Script di esecuzione e upload per Python Anywhere
-"""
 import asyncio
 import os
 from ftplib import FTP
@@ -13,102 +10,81 @@ FTP_CONFIG = {
     'user': 'scriptok@notizia.info',
     'password': 'scriptok2025##',
     'path': '/public_html',
-    'remote_filename': CONFIG['REMOTE_FILENAME'],
+    'remote_filename': CONFIG['LOCAL_FILENAME'],  # Usa lo stesso nome del file locale
 }
-
-def check_file_status():
-    """Verifica lo stato del file locale"""
-    local_file = CONFIG['LOCAL_FILENAME']
-    print(f"\nVerifica del file locale:")
-    print(f"- Directory corrente: {os.getcwd()}")
-    print(f"- Nome file cercato: {local_file}")
-    
-    files_in_dir = os.listdir()
-    print("\nFile presenti nella directory:")
-    for file in files_in_dir:
-        print(f"- {file}")
-    
-    if os.path.exists(local_file):
-        size = os.path.getsize(local_file)
-        print(f"\nFile trovato! Dimensione: {size} bytes")
-        return True
-    else:
-        print(f"\nFile non trovato!")
-        return False
 
 def upload_to_ftp(local_file):
     """
     Carica un file nella directory specificata del server FTP
     """
-    print("\nTentativo di connessione FTP...")
-    print(f"File da caricare: {local_file}")
-    
-    # Verifica prima se il file esiste
-    if not os.path.exists(local_file):
-        raise FileNotFoundError(f"File locale non trovato: {local_file}")
+    print(f"\nInizio processo di upload FTP per {local_file}")
+    print(f"Dimensione locale del file: {os.path.getsize(local_file)} bytes")
     
     try:
         with FTP(FTP_CONFIG['host']) as ftp:
-            # Connessione e login
+            # Mostra informazioni di debug FTP
+            ftp.set_debuglevel(2)
+            
+            # Login
+            print("\nTentativo di login...")
             ftp.login(user=FTP_CONFIG['user'], passwd=FTP_CONFIG['password'])
-            print("Connessione FTP stabilita e login effettuato!")
+            print("Login effettuato con successo")
             
             # Cambia directory
+            print(f"\nCambio directory in {FTP_CONFIG['path']}...")
             ftp.cwd(FTP_CONFIG['path'])
-            print(f"Directory cambiata in: {FTP_CONFIG['path']}")
+            print("Directory cambiata con successo")
             
-            # Prova a eliminare il file esistente se presente
-            try:
-                ftp.delete(FTP_CONFIG['remote_filename'])
-                print("File esistente eliminato con successo!")
-            except:
-                print("Nessun file esistente da eliminare o errore durante l'eliminazione")
+            # Lista i file prima dell'upload
+            print("\nFile presenti sul server prima dell'upload:")
+            files_before = ftp.nlst()
+            for f in files_before:
+                print(f"- {f}")
             
-            # Carica il nuovo file
-            print(f"Tentativo di caricamento di '{local_file}' come '{FTP_CONFIG['remote_filename']}'")
+            # Carica il file
+            print(f"\nInizio caricamento di {local_file}...")
             with open(local_file, 'rb') as f:
-                ftp.storbinary(f'STOR {FTP_CONFIG["remote_filename"]}', f)
+                # Usa STOR con il nome del file remoto
+                upload_result = ftp.storbinary(f'STOR {FTP_CONFIG["remote_filename"]}', f)
+                print(f"Risultato upload: {upload_result}")
             
-            # Verifica che il file sia stato caricato
-            file_list = ftp.nlst()
-            if FTP_CONFIG['remote_filename'] in file_list:
-                print(f"File caricato con successo e verificato: {FTP_CONFIG['remote_filename']}")
-                
-                # Verifica dimensione del file
-                file_size = ftp.size(FTP_CONFIG['remote_filename'])
-                print(f"Dimensione file sul server: {file_size} bytes")
+            # Verifica il caricamento
+            print("\nVerifica del caricamento...")
+            files_after = ftp.nlst()
+            if FTP_CONFIG['remote_filename'] in files_after:
+                remote_size = ftp.size(FTP_CONFIG['remote_filename'])
+                print(f"File trovato sul server! Dimensione: {remote_size} bytes")
+                if remote_size == os.path.getsize(local_file):
+                    print("Le dimensioni corrispondono - Upload completato con successo!")
+                else:
+                    print("ATTENZIONE: Le dimensioni non corrispondono!")
             else:
-                print("ERRORE: Il file non risulta presente dopo il caricamento!")
+                raise Exception("File non trovato sul server dopo l'upload")
                 
     except Exception as e:
-        print(f"Errore durante il caricamento FTP: {str(e)}")
+        print(f"\nErrore durante l'upload FTP: {str(e)}")
         raise
 
 async def run():
     try:
         # Esegui lo script principale
         print("Avvio dello script principale...")
-        print(f"File configurati:")
-        print(f"- File locale: {CONFIG['LOCAL_FILENAME']}")
-        print(f"- File remoto: {CONFIG['REMOTE_FILENAME']}")
-        
         await main()
         
-        # Verifica lo stato del file
-        if not check_file_status():
-            raise FileNotFoundError(f"File non trovato dopo l'esecuzione dello script")
+        # Verifica il file locale
+        local_file = CONFIG['LOCAL_FILENAME']
+        if not os.path.exists(local_file):
+            raise FileNotFoundError(f"File {local_file} non trovato!")
         
-        # Carica il file su FTP
-        print("\nInizio caricamento FTP...")
-        upload_to_ftp(CONFIG['LOCAL_FILENAME'])
-        
-        print("\nOperazione completata con successo!")
+        # Upload FTP
+        upload_to_ftp(local_file)
         
     except Exception as e:
         print(f"Errore durante l'esecuzione: {e}")
         import traceback
-        print("\nDettaglio dell'errore:")
+        print("\nStack trace completo:")
         print(traceback.format_exc())
+        raise
 
 if __name__ == "__main__":
     asyncio.run(run())
