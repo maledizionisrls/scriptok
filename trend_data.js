@@ -1,42 +1,65 @@
 // trend_data.js
 class TrendAnalyzer {
     constructor() {
-        // Prende i dati direttamente dalla variabile videos definita nel template principale
-        this.videos = window.videos || [];
+        // Verifica che i dati siano disponibili
+        if (typeof window.videos === 'undefined') {
+            console.error('Dati video non disponibili');
+            this.videos = [];
+            return;
+        }
+        this.videos = window.videos;
         this.processedData = this.processData();
     }
 
     processData() {
+        if (!this.videos.length) {
+            return {
+                wordCloud: [],
+                keywords: [],
+                categories: []
+            };
+        }
+
         const wordWeights = {};
         const keywordCounts = {};
         const categoryStats = {};
 
         this.videos.forEach(video => {
-            // Converte le visualizzazioni in numero
-            const views = parseInt(video.views.replace(/\./g, '')) || 0;
-            
-            // Processa le keywords (già array dal template)
-            video.keywords.forEach(keyword => {
-                // Aggiorna pesi parole (peso = occorrenze * views)
-                if (!wordWeights[keyword]) wordWeights[keyword] = 0;
-                wordWeights[keyword] += views;
+            try {
+                // Gestione sicura delle visualizzazioni
+                const views = parseInt((video.views || '0').replace(/\./g, '')) || 0;
                 
-                // Aggiorna conteggio semplice keywords
-                if (!keywordCounts[keyword]) keywordCounts[keyword] = 0;
-                keywordCounts[keyword]++;
-            });
-
-            // Processa le categorie (già array dal template)
-            video.categories.forEach(category => {
-                if (!categoryStats[category]) {
-                    categoryStats[category] = {
-                        totalViews: 0,
-                        count: 0
-                    };
+                // Gestione sicura delle keywords
+                if (Array.isArray(video.keywords)) {
+                    video.keywords.forEach(keyword => {
+                        if (keyword && keyword !== 'N/A') {
+                            if (!wordWeights[keyword]) wordWeights[keyword] = 0;
+                            wordWeights[keyword] += views;
+                            
+                            if (!keywordCounts[keyword]) keywordCounts[keyword] = 0;
+                            keywordCounts[keyword]++;
+                        }
+                    });
                 }
-                categoryStats[category].totalViews += views;
-                categoryStats[category].count++;
-            });
+
+                // Gestione sicura delle categorie
+                if (Array.isArray(video.categories)) {
+                    video.categories.forEach(category => {
+                        if (category && category !== 'N/A') {
+                            if (!categoryStats[category]) {
+                                categoryStats[category] = {
+                                    totalViews: 0,
+                                    count: 0
+                                };
+                            }
+                            categoryStats[category].totalViews += views;
+                            categoryStats[category].count++;
+                        }
+                    });
+                }
+            } catch (e) {
+                console.error('Errore nel processamento del video:', e);
+            }
         });
 
         return {
@@ -47,46 +70,68 @@ class TrendAnalyzer {
     }
 
     prepareWordCloudData(weights) {
-        return Object.entries(weights)
-            .map(([text, value]) => ({
-                text,
-                size: this.calculateFontSize(value),
-                weight: value
-            }))
-            .sort((a, b) => b.weight - a.weight)
-            .slice(0, 40);  // Limita a 40 parole
+        try {
+            return Object.entries(weights)
+                .map(([text, value]) => ({
+                    text,
+                    size: this.calculateFontSize(value, Object.values(weights)),
+                    weight: value
+                }))
+                .sort((a, b) => b.weight - a.weight)
+                .slice(0, 40);
+        } catch (e) {
+            console.error('Errore nella preparazione word cloud:', e);
+            return [];
+        }
     }
 
-    calculateFontSize(value) {
-        // Calcola una dimensione del font tra 12 e 48px basata sul peso
-        const max = Math.max(...Object.values(this.processedData?.wordCloud || []));
-        const min = Math.min(...Object.values(this.processedData?.wordCloud || []));
-        const normalized = (value - min) / (max - min);
-        return Math.floor(12 + normalized * 36);
+    calculateFontSize(value, allValues) {
+        try {
+            const max = Math.max(...allValues);
+            const min = Math.min(...allValues);
+            const range = max - min;
+            if (range === 0) return 24; // valore di default
+            const normalized = (value - min) / range;
+            return Math.floor(12 + normalized * 36); // da 12px a 48px
+        } catch (e) {
+            console.error('Errore nel calcolo font size:', e);
+            return 24; // valore di default
+        }
     }
 
     prepareKeywordsData(counts) {
-        const total = Object.values(counts).reduce((sum, count) => sum + count, 0);
-        
-        return Object.entries(counts)
-            .map(([keyword, count]) => ({
-                keyword,
-                count,
-                percentage: ((count / total) * 100).toFixed(1)
-            }))
-            .sort((a, b) => b.count - a.count)
-            .slice(0, 10);  // Top 10 keywords
+        try {
+            const total = Object.values(counts).reduce((sum, count) => sum + count, 0);
+            if (total === 0) return [];
+
+            return Object.entries(counts)
+                .map(([keyword, count]) => ({
+                    keyword,
+                    count,
+                    percentage: ((count / total) * 100).toFixed(1)
+                }))
+                .sort((a, b) => b.count - a.count)
+                .slice(0, 10);
+        } catch (e) {
+            console.error('Errore nella preparazione keywords:', e);
+            return [];
+        }
     }
 
     prepareCategoriesData(stats) {
-        return Object.entries(stats)
-            .map(([category, data]) => ({
-                category,
-                avgViews: Math.round(data.totalViews / data.count),
-                totalVideos: data.count
-            }))
-            .sort((a, b) => b.avgViews - a.avgViews)
-            .slice(0, 8);  // Top 8 categorie
+        try {
+            return Object.entries(stats)
+                .map(([category, data]) => ({
+                    category,
+                    avgViews: Math.round(data.totalViews / data.count),
+                    totalVideos: data.count
+                }))
+                .sort((a, b) => b.avgViews - a.avgViews)
+                .slice(0, 8);
+        } catch (e) {
+            console.error('Errore nella preparazione categorie:', e);
+            return [];
+        }
     }
 
     getData() {
@@ -94,7 +139,11 @@ class TrendAnalyzer {
     }
 
     static formatNumber(num) {
-        return new Intl.NumberFormat('it-IT').format(num);
+        try {
+            return new Intl.NumberFormat('it-IT').format(num);
+        } catch (e) {
+            return num.toString();
+        }
     }
 }
 
