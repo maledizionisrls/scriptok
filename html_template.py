@@ -14,11 +14,6 @@ class HTMLGenerator:
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <script src="https://unpkg.com/react@17/umd/react.production.min.js" crossorigin></script>
-    <script src="https://unpkg.com/react-dom@17/umd/react-dom.production.min.js" crossorigin></script>
-    <script src="https://unpkg.com/recharts/umd/Recharts.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/lodash@4.17.21/lodash.min.js"></script>
-    <script src="analytics-component.js"></script>
     <style>
         * { 
             box-sizing: border-box;
@@ -172,25 +167,6 @@ class HTMLGenerator:
             font-size: 18px;
         }
 
-        .analytics-button {
-            display: block;
-            margin: 20px auto 0;
-            padding: 12px 24px;
-            background: linear-gradient(45deg, var(--primary), var(--secondary));
-            border: none;
-            border-radius: 25px;
-            color: var(--text);
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            font-size: 16px;
-        }
-
-        .analytics-button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0, 242, 234, 0.2);
-        }
-
         .pagination {
             display: flex;
             justify-content: center;
@@ -208,7 +184,7 @@ class HTMLGenerator:
             font-weight: 500;
             transition: all 0.2s ease;
             border: 1px solid rgba(255, 255, 255, 0.1);
-            font-size: 16px;
+            font-size: 14px;
         }
 
         .pagination button:not(:disabled):hover {
@@ -242,64 +218,6 @@ class HTMLGenerator:
             color: var(--text-secondary);
         }
 
-        .hidden {
-            display: none !important;
-        }
-
-        /* Stili per la modale */
-        .modal-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background-color: rgba(0, 0, 0, 0.75);
-            z-index: 999;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .modal-content {
-            background-color: var(--card-bg);
-            padding: 30px;
-            border-radius: 16px;
-            width: 90%;
-            max-width: 1200px;
-            max-height: 90vh;
-            overflow-y: auto;
-            position: relative;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
-        }
-
-        .modal-close {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            background: none;
-            border: none;
-            color: var(--text);
-            font-size: 24px;
-            cursor: pointer;
-            padding: 5px;
-            z-index: 1001;
-        }
-
-        .analytics-container {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 1000;
-            display: none;
-        }
-
-        .analytics-container.visible {
-            display: block;
-        }
-
         @media (max-width: 768px) {
             .grid { 
                 grid-template-columns: 1fr;
@@ -313,10 +231,6 @@ class HTMLGenerator:
             }
             .container {
                 padding: 10px;
-            }
-            .modal-content {
-                padding: 15px;
-                width: 95%;
             }
         }
         
@@ -332,17 +246,6 @@ class HTMLGenerator:
         <div class="header">
             <h1>ScripTok</h1>
             <p>I video più popolari in Italia</p>
-            <button onclick="toggleAnalytics()" class="analytics-button">
-                Analisi dei Trend
-            </button>
-        </div>
-        <div id="analytics-container" class="analytics-container">
-            <div class="modal-overlay" onclick="closeAnalytics(event)">
-                <div class="modal-content" onclick="event.stopPropagation()">
-                    <button class="modal-close" onclick="closeAnalytics(event)">×</button>
-                    <div id="analytics-root"></div>
-                </div>
-            </div>
         </div>
         <div class="pagination"></div>
         <div class="pagination-info"></div>
@@ -388,84 +291,7 @@ class HTMLGenerator:
 
         function createVideoCard(video) {{
             const categories = video.categories.map(cat => 
-                `Pagina ${currentPage} di ${totalPages} (${videos.length} video totali)`;
-        }
-
-        function toggleAnalytics() {
-            try {
-                console.log("Apertura analytics");
-                const analyticsContainer = document.getElementById('analytics-container');
-                const analyticsRoot = document.getElementById('analytics-root');
-                
-                if (!analyticsRoot.hasChildNodes()) {
-                    if (typeof TrendAnalytics === 'undefined') {
-                        console.error('Componente TrendAnalytics non trovato');
-                        alert('Errore nel caricamento del componente di analisi');
-                        return;
-                    }
-                    
-                    ReactDOM.render(
-                        React.createElement(TrendAnalytics, { 
-                            videos: videos 
-                        }),
-                        analyticsRoot
-                    );
-                }
-                analyticsContainer.classList.add('visible');
-                document.body.style.overflow = 'hidden';
-            } catch (error) {
-                console.error("Errore nell'apertura degli analytics:", error);
-                alert('Si è verificato un errore. Controlla la console per i dettagli.');
-            }
-        }
-
-        function closeAnalytics(event) {
-            event.preventDefault();
-            const analyticsContainer = document.getElementById('analytics-container');
-            analyticsContainer.classList.remove('visible');
-            document.body.style.overflow = 'auto';
-        }
-
-        function changePage(newPage) {
-            if (newPage < 1 || newPage > totalPages) return;
-            currentPage = newPage;
-            displayCurrentPage();
-            updatePagination();
-            window.scrollTo({
-                top: 0,
-                behavior: 'smooth'
-            });
-        }
-
-        function displayCurrentPage() {
-            const container = document.getElementById('videos-container');
-            container.innerHTML = '';
-            
-            const start = (currentPage - 1) * VIDEOS_PER_PAGE;
-            const end = start + VIDEOS_PER_PAGE;
-            const pageVideos = videos.slice(start, end);
-            
-            pageVideos.forEach(video => {
-                const card = createVideoCard(video);
-                container.appendChild(card);
-                videoObserver.observe(card.querySelector('.video-container'));
-            });
-        }
-
-        displayCurrentPage();
-        updatePagination();
-    </script>
-</body>
-</html>'''
-
-        return html_start + html_middle
-
-    @staticmethod
-    def generate_html_file(videos_data: List[Dict], output_filename: str):
-        """Genera il file HTML con i video"""
-        html_content = HTMLGenerator.get_html_template(videos_data)
-        with open(output_filename, 'w', encoding='utf-8') as f:
-            f.write(html_content)<span class="tag">${{cat}}</span>`).join(' ') || 'Nessuna categoria';
+                `<span class="tag">${{cat}}</span>`).join(' ') || 'Nessuna categoria';
             const keywords = video.keywords.map(kw => 
                 `<span class="tag">${{kw}}</span>`).join(' ') || 'Nessuna parola chiave';
             
@@ -482,8 +308,8 @@ class HTMLGenerator:
                 </div>
                 <div class="video-container">
                     <div class="video-embed">
-                        <iframe data-src="https://www.tiktok.com/embed/${{video.id}}" 
-                                allowfullscreen scrolling="no" 
+                        <iframe data-src="https://www.tiktok.com/embed/${{video.id}}"
+                                allowfullscreen scrolling="no"
                                 allow="encrypted-media;">
                         </iframe>
                     </div>
@@ -503,45 +329,16 @@ class HTMLGenerator:
         function updatePagination() {{
             const paginationElements = document.querySelectorAll('.pagination');
             const paginationHTML = `
-                <button onclick="changePage(1)" ${{currentPage === 1 ? 'disabled' : ''}}>⏮️</button>
+                <button onclick="changePage(1)" ${{currentPage === 1 ? 'disabled' : ''}}>Prima</button>
                 <button onclick="changePage(${{currentPage - 1}})" ${{currentPage === 1 ? 'disabled' : ''}}>⬅️</button>
                 <button onclick="changePage(${{currentPage + 1}})" ${{currentPage === totalPages ? 'disabled' : ''}}>➡️</button>
-                <button onclick="changePage(${{totalPages}})" ${{currentPage === totalPages ? 'disabled' : ''}}>⏭️</button>
+                <button onclick="changePage(${{totalPages}})" ${{currentPage === totalPages ? 'disabled' : ''}}>Ultima</button>
             `;
             paginationElements.forEach(el => el.innerHTML = paginationHTML);
             
             document.querySelector('.pagination-info').textContent = 
                 `Pagina ${{currentPage}} di ${{totalPages}} (${{videos.length}} video totali)`;
         }}
-
-        function toggleAnalytics() {
-    try {
-        console.log("Apertura analytics con i dati:", videos);
-        const analyticsRoot = document.getElementById('analytics-root');
-        
-        if (!analyticsRoot.hasChildNodes()) {
-            if (typeof TrendAnalytics === 'undefined') {
-                console.error('Componente TrendAnalytics non trovato');
-                alert('Errore nel caricamento del componente di analisi');
-                return;
-            }
-            
-            ReactDOM.render(
-                React.createElement(TrendAnalytics, { 
-                    videos: videos,
-                    onClose: () => {
-                        analyticsRoot.classList.add('hidden');
-                    }
-                }),
-                analyticsRoot
-            );
-        }
-        analyticsRoot.classList.remove('hidden');
-    } catch (error) {
-        console.error("Errore nell'apertura degli analytics:", error);
-        alert('Si è verificato un errore. Controlla la console per i dettagli.');
-    }
-}
 
         function changePage(newPage) {{
             if (newPage < 1 || newPage > totalPages) return;
