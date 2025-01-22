@@ -3,18 +3,20 @@ Configurazioni globali per il sistema di scraping TikTok
 """
 
 # Configurazione principale
-CONFIG = {
-    'PAGES_TO_ANALYZE': 27,     # Numero di pagine da analizzare (max 27)
-    'OUTPUT_VIDEOS': 50,        # Numero di video da includere nel risultato finale
-    'COUNTRY_CODE': 'IT',       # Codice paese
-    'TIME_PERIOD': '7',         # Periodo in giorni
-    'PAGE_SIZE': 20,           # Video per pagina
-    'DELAY': 0.01,             # Delay tra le richieste in secondi
-    'MAX_AUTH_RETRIES': 3,     # Numero massimo di tentativi per l'autenticazione
-    'AUTH_RETRY_DELAY': 2,     # Secondi di attesa tra i tentativi di autenticazione
-    'OUTPUT_FILENAME': 'scriptok.html', # Nome fisso del file di output
-    'VIDEOS_PER_PAGE': 9,  # Numero di video per pagina
+# In config.py
 
+CONFIG = {
+    'PAGES_TO_ANALYZE': 27,
+    'OUTPUT_VIDEOS': 50,
+    'COUNTRY_CODE': 'IT',
+    'TIME_PERIOD': '7',
+    'PAGE_SIZE': 20,
+    'DELAY': 0.01,
+    'MAX_AUTH_RETRIES': 3,
+    'AUTH_RETRY_DELAY': 2,
+    'LOCAL_FILENAME': 'tiktok_trending2.html',  # Nome del file locale
+    'REMOTE_FILENAME': 'tiktok_trending2.html', # Nome del file remoto (può essere diverso)
+    'VIDEOS_PER_PAGE': 9,
 }
 
 # Configurazione browser
