@@ -14,8 +14,8 @@ CONFIG = {
     'DELAY': 0.01,
     'MAX_AUTH_RETRIES': 3,
     'AUTH_RETRY_DELAY': 2,
-    'LOCAL_FILENAME': 'tiktok_trending2.html',   # Aggiunto per chiarezza
-    'REMOTE_FILENAME': 'tiktok_trending2.html',  # Aggiunto per FTP
+    'LOCAL_FILENAME': 'scriptok.html',   # Aggiunto per chiarezza
+    'REMOTE_FILENAME': 'scriptok.html',  # Aggiunto per FTP
     'VIDEOS_PER_PAGE': 9,
 }
 
