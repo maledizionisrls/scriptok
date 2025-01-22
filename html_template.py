@@ -388,84 +388,7 @@ class HTMLGenerator:
 
         function createVideoCard(video) {{
             const categories = video.categories.map(cat => 
-                `Pagina ${currentPage} di ${totalPages} (${videos.length} video totali)`;
-        }
-
-        function toggleAnalytics() {
-            try {
-                console.log("Apertura analytics");
-                const analyticsContainer = document.getElementById('analytics-container');
-                const analyticsRoot = document.getElementById('analytics-root');
-                
-                if (!analyticsRoot.hasChildNodes()) {
-                    if (typeof TrendAnalytics === 'undefined') {
-                        console.error('Componente TrendAnalytics non trovato');
-                        alert('Errore nel caricamento del componente di analisi');
-                        return;
-                    }
-                    
-                    ReactDOM.render(
-                        React.createElement(TrendAnalytics, { 
-                            videos: videos 
-                        }),
-                        analyticsRoot
-                    );
-                }
-                analyticsContainer.classList.add('visible');
-                document.body.style.overflow = 'hidden';
-            } catch (error) {
-                console.error("Errore nell'apertura degli analytics:", error);
-                alert('Si è verificato un errore. Controlla la console per i dettagli.');
-            }
-        }
-
-        function closeAnalytics(event) {
-            event.preventDefault();
-            const analyticsContainer = document.getElementById('analytics-container');
-            analyticsContainer.classList.remove('visible');
-            document.body.style.overflow = 'auto';
-        }
-
-        function changePage(newPage) {
-            if (newPage < 1 || newPage > totalPages) return;
-            currentPage = newPage;
-            displayCurrentPage();
-            updatePagination();
-            window.scrollTo({
-                top: 0,
-                behavior: 'smooth'
-            });
-        }
-
-        function displayCurrentPage() {
-            const container = document.getElementById('videos-container');
-            container.innerHTML = '';
-            
-            const start = (currentPage - 1) * VIDEOS_PER_PAGE;
-            const end = start + VIDEOS_PER_PAGE;
-            const pageVideos = videos.slice(start, end);
-            
-            pageVideos.forEach(video => {
-                const card = createVideoCard(video);
-                container.appendChild(card);
-                videoObserver.observe(card.querySelector('.video-container'));
-            });
-        }
-
-        displayCurrentPage();
-        updatePagination();
-    </script>
-</body>
-</html>'''
-
-        return html_start + html_middle
-
-    @staticmethod
-    def generate_html_file(videos_data: List[Dict], output_filename: str):
-        """Genera il file HTML con i video"""
-        html_content = HTMLGenerator.get_html_template(videos_data)
-        with open(output_filename, 'w', encoding='utf-8') as f:
-            f.write(html_content)<span class="tag">${{cat}}</span>`).join(' ') || 'Nessuna categoria';
+                `<span class="tag">${{cat}}</span>`).join(' ') || 'Nessuna categoria';
             const keywords = video.keywords.map(kw => 
                 `<span class="tag">${{kw}}</span>`).join(' ') || 'Nessuna parola chiave';
             
@@ -514,42 +437,40 @@ class HTMLGenerator:
                 `Pagina ${{currentPage}} di ${{totalPages}} (${{videos.length}} video totali)`;
         }}
 
-        function toggleAnalytics() {
-    try {
-        console.log("Apertura analytics con i dati:", videos);
-        const analyticsRoot = document.getElementById('analytics-root');
-        
-        if (!analyticsRoot.hasChildNodes()) {
-            if (typeof TrendAnalytics === 'undefined') {
-                console.error('Componente TrendAnalytics non trovato');
-                alert('Errore nel caricamento del componente di analisi');
-                return;
-            }
-            
-            ReactDOM.render(
-                React.createElement(TrendAnalytics, { 
-                    videos: videos,
-                    onClose: () => {
-                        analyticsRoot.classList.add('hidden');
-                    }
-                }),
-                analyticsRoot
-            );
-        }
-        analyticsRoot.classList.remove('hidden');
-        document.body.style.overflow = 'hidden';
-    } catch (error) {
-        console.error("Errore nell'apertura degli analytics:", error);
-        alert('Si è verificato un errore. Controlla la console per i dettagli.');
-    }
-}
+        function toggleAnalytics() {{
+            try {{
+                console.log("Apertura analytics");
+                const analyticsContainer = document.getElementById('analytics-container');
+                const analyticsRoot = document.getElementById('analytics-root');
+                
+                if (!analyticsRoot.hasChildNodes()) {{
+                    if (typeof TrendAnalytics === 'undefined') {{
+                        console.error('Componente TrendAnalytics non trovato');
+                        alert('Errore nel caricamento del componente di analisi');
+                        return;
+                    }}
+                    
+                    ReactDOM.render(
+                        React.createElement(TrendAnalytics, {{ 
+                            videos: videos 
+                        }}),
+                        analyticsRoot
+                    );
+                }}
+                analyticsContainer.classList.add('visible');
+                document.body.style.overflow = 'hidden';
+            }} catch (error) {{
+                console.error("Errore nell'apertura degli analytics:", error);
+                alert('Si è verificato un errore. Controlla la console per i dettagli.');
+            }}
+        }}
 
-function closeAnalytics(event) {
-    event.preventDefault();
-    const analyticsRoot = document.getElementById('analytics-root');
-    analyticsRoot.classList.add('hidden');
-    document.body.style.overflow = 'auto';
-}
+        function closeAnalytics(event) {{
+            event.preventDefault();
+            const analyticsContainer = document.getElementById('analytics-container');
+            analyticsContainer.classList.remove('visible');
+            document.body.style.overflow = 'auto';
+        }}
 
         function changePage(newPage) {{
             if (newPage < 1 || newPage > totalPages) return;
