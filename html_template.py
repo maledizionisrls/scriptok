@@ -537,10 +537,18 @@ class HTMLGenerator:
             );
         }
         analyticsRoot.classList.remove('hidden');
+        document.body.style.overflow = 'hidden';
     } catch (error) {
         console.error("Errore nell'apertura degli analytics:", error);
         alert('Si è verificato un errore. Controlla la console per i dettagli.');
     }
+}
+
+function closeAnalytics(event) {
+    event.preventDefault();
+    const analyticsRoot = document.getElementById('analytics-root');
+    analyticsRoot.classList.add('hidden');
+    document.body.style.overflow = 'auto';
 }
 
         function changePage(newPage) {{
