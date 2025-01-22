@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trend Analytics</title>
+    <script src="https://unpkg.com/react@17/umd/react.production.min.js" crossorigin></script>
+    <script src="https://unpkg.com/react-dom@17/umd/react-dom.production.min.js" crossorigin></script>
+    <script src="https://unpkg.com/recharts/umd/Recharts.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/lodash@4.17.21/lodash.min.js"></script>
+    <script src="analytics-component.js"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #121212;
+            color: #ffffff;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+        }
+        .container {
+            max-width: 1200px;
+            width: 100%;
+            padding: 20px;
+            background: #1e1e1e;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .header h1 {
+            font-size: 36px;
+            font-weight: 700;
+            color: #00F2EA;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Trend Analytics</h1>
+        </div>
+        <div id="analytics-root"></div>
+    </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            if (typeof TrendAnalytics !== 'undefined') {
+                ReactDOM.render(
+                    React.createElement(TrendAnalytics, { 
+                        videos: window.videos 
+                    }),
+                    document.getElementById('analytics-root')
+                );
+            } else {
+                console.error('Componente TrendAnalytics non trovato');
+            }
+        });
+    </script>
+</body>
+</html>
