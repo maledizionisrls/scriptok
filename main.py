@@ -1,3 +1,6 @@
+"""
+Script principale che coordina l'esecuzione del programma
+"""
 import asyncio
 import time
 import os
@@ -95,12 +98,11 @@ async def main(pages: int = None, num_videos: int = None):
         if output_dir and not os.path.exists(output_dir):
             os.makedirs(output_dir)
 
-        # Genera tutti i file necessari
-        HTMLGenerator.generate_all_files(videos_data, output_dir or '.')
+        # Genera il file HTML con il nome specificato in LOCAL_FILENAME
+        HTMLGenerator.generate_html_file(videos_data, CONFIG['LOCAL_FILENAME'])
         
         if os.path.exists(CONFIG['LOCAL_FILENAME']):
             print(f"\nFile HTML generato con successo: {CONFIG['LOCAL_FILENAME']}")
-            print("File di analisi trend generati con successo")
             print(f"Dimensione file: {os.path.getsize(CONFIG['LOCAL_FILENAME'])} bytes")
         else:
             print(f"\nERRORE: Il file {CONFIG['LOCAL_FILENAME']} non è stato creato!")
