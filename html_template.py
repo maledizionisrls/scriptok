@@ -16,9 +16,6 @@ class HTMLGenerator:
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/react@17/umd/react.production.min.js" crossorigin></script>
     <script src="https://unpkg.com/react-dom@17/umd/react-dom.production.min.js" crossorigin></script>
-    <script src="https://unpkg.com/recharts/umd/Recharts.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/lodash@4.17.21/lodash.min.js"></script>
-    <script src="analytics-component.js"></script>
     <style>
         * { 
             box-sizing: border-box;
@@ -340,7 +337,7 @@ class HTMLGenerator:
             <div class="modal-overlay" onclick="closeAnalytics(event)">
                 <div class="modal-content" onclick="event.stopPropagation()">
                     <button class="modal-close" onclick="closeAnalytics(event)">×</button>
-                    <div id="analytics-root"></div>
+                    <iframe src="trend.html" style="width: 100%; height: 100%; border: none;"></iframe>
                 </div>
             </div>
         </div>
@@ -426,31 +423,9 @@ class HTMLGenerator:
         }
 
         function toggleAnalytics() {
-            try {
-                console.log("Apertura analytics");
-                const analyticsContainer = document.getElementById('analytics-container');
-                const analyticsRoot = document.getElementById('analytics-root');
-                
-                if (!analyticsRoot.hasChildNodes()) {
-                    if (typeof TrendAnalytics === 'undefined') {
-                        console.error('Componente TrendAnalytics non trovato');
-                        alert('Errore nel caricamento del componente di analisi');
-                        return;
-                    }
-                    
-                    ReactDOM.render(
-                        React.createElement(TrendAnalytics, { 
-                            videos: videos 
-                        }),
-                        analyticsRoot
-                    );
-                }
-                analyticsContainer.classList.add('visible');
-                document.body.style.overflow = 'hidden';
-            } catch (error) {
-                console.error("Errore nell'apertura degli analytics:", error);
-                alert('Si è verificato un errore. Controlla la console per i dettagli.');
-            }
+            const analyticsContainer = document.getElementById('analytics-container');
+            analyticsContainer.classList.add('visible');
+            document.body.style.overflow = 'hidden';
         }
 
         function closeAnalytics(event) {
