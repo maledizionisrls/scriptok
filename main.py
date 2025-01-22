@@ -5,7 +5,8 @@ async def main(pages: int = None, num_videos: int = None):
     # [tutto il codice esistente rimane uguale fino alla generazione HTML]
 
         # Genera il file HTML con il nome specificato in LOCAL_FILENAME
-        HTMLGenerator.generate_html_file(videos_data, CONFIG['LOCAL_FILENAME'])
+        output_dir = os.path.dirname(CONFIG['LOCAL_FILENAME'])
+        HTMLGenerator.generate_all_files(videos_data, output_dir or '.')
         
         # Genera i file necessari per l'analisi dei trend
         output_dir = os.path.dirname(CONFIG['LOCAL_FILENAME'])
