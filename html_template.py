@@ -1,6 +1,6 @@
 import json
 from typing import List, Dict
-from config import CONFIG
+from config import CONFIG  # Importa la configurazione dal file config.py
 
 class HTMLGenerator:
     @staticmethod
@@ -11,111 +11,77 @@ class HTMLGenerator:
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ScripTok</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        * { 
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
-
-        :root {
-            --primary: #00f2ea;
-            --secondary: #ff0050;
-            --bg-dark: #121212;
-            --card-bg: #1e1e1e;
-            --text: #ffffff;
-            --text-secondary: #a0a0a0;
-            --card-hover: #2d2d2d;
-        }
-
+        * { box-sizing: border-box; }
         body { 
-            font-family: 'Inter', sans-serif;
-            background: var(--bg-dark);
-            color: var(--text);
-            margin: 0;
-            padding: 0;
-            min-height: 100vh;
+            font-family: 'Inter', sans-serif; 
+            margin: 0; 
+            padding: 20px; 
+            background: #121212; 
+            color: white;
         }
-
-        .container { 
-            max-width: 1400px;
-            margin: 0 auto;
-            padding: 20px;
-        }
-
+        .container { max-width: 1400px; margin: 0 auto; }
         .grid { 
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-            gap: 24px;
-            padding: 20px 0;
-        }
-
-        .video-card { 
-            background: var(--card-bg);
-            border-radius: 16px;
+            display: grid; 
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px; 
             padding: 20px;
-            transition: transform 0.2s ease, background-color 0.2s ease;
-            border: 1px solid rgba(255, 255, 255, 0.1);
         }
-
+        .video-card { 
+            background: #1e1e1e; 
+            border-radius: 12px; 
+            padding: 20px; 
+            margin-bottom: 20px; 
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            display: flex;
+            flex-direction: column;
+            border: 1px solid rgba(255,255,255,0.1);
+            transition: transform 0.2s ease;
+        }
         .video-card:hover {
             transform: translateY(-5px);
-            background: var(--card-hover);
         }
-
         .video-title { 
-            font-size: 18px;
-            font-weight: 600;
-            margin-bottom: 16px;
-            line-height: 1.4;
-            color: var(--text);
+            font-size: 16px; 
+            font-weight: 600; 
+            margin-bottom: 10px;
+            color: #ffffff;
         }
-
-        .video-stats {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 16px;
-            color: var(--text-secondary);
+        .video-stats { 
+            margin-bottom: 15px; 
             font-size: 14px;
+            color: #a0a0a0;
         }
-
         .video-url {
-            font-size: 14px;
+            font-size: 13px;
             word-break: break-all;
-            margin-bottom: 16px;
-            padding: 12px;
-            background: rgba(255, 255, 255, 0.05);
+            margin-bottom: 10px;
+            padding: 10px;
+            background: rgba(255,255,255,0.05);
             border-radius: 8px;
         }
-
         .video-url a {
-            color: var(--primary);
+            color: #00f2ea;
             text-decoration: none;
-            transition: color 0.2s ease;
         }
-
         .video-url a:hover {
-            color: var(--secondary);
+            text-decoration: underline;
+            color: #ff0050;
         }
-
         .video-container {
-            margin-bottom: 20px;
-            border-radius: 12px;
-            overflow: hidden;
-            background: var(--bg-dark);
+            width: 100%;
+            position: relative;
+            margin-bottom: 15px;
         }
-
         .video-embed {
             position: relative;
             padding-bottom: 177.77%;
             height: 0;
             overflow: hidden;
+            border-radius: 8px;
+            background: #000;
         }
-
         .video-embed iframe {
             position: absolute;
             top: 0;
@@ -124,120 +90,109 @@ class HTMLGenerator:
             height: 100%;
             border: none;
         }
-
         .tag { 
-            display: inline-block;
-            background: rgba(0, 242, 234, 0.1);
-            color: var(--primary);
-            padding: 6px 12px;
-            border-radius: 20px;
-            margin: 4px;
+            display: inline-block; 
+            background: rgba(0,242,234,0.1); 
+            padding: 4px 8px; 
+            border-radius: 12px; 
+            margin: 2px; 
             font-size: 12px;
-            font-weight: 500;
+            color: #00f2ea;
             transition: all 0.2s ease;
         }
-
         .tag:hover {
-            background: rgba(0, 242, 234, 0.2);
+            background: rgba(0,242,234,0.2);
             transform: scale(1.05);
         }
-
         .header { 
-            text-align: center;
-            padding: 40px 20px;
+            text-align: center; 
+            padding: 40px 20px; 
             margin-bottom: 20px;
-            position: relative;
-            overflow: hidden;
-            background: linear-gradient(135deg, var(--card-bg) 0%, var(--bg-dark) 100%);
+            background: #1e1e1e;
             border-radius: 20px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255,255,255,0.1);
+            position: relative;
         }
-
         .header h1 {
             font-size: 48px;
             font-weight: 700;
             margin-bottom: 12px;
-            background: linear-gradient(45deg, var(--primary), var(--secondary));
+            background: linear-gradient(45deg, #00f2ea, #ff0050);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
-
         .header p {
-            color: var(--text-secondary);
+            color: #a0a0a0;
             font-size: 18px;
         }
-
+        .trend-button {
+            margin-top: 20px;
+            padding: 12px 24px;
+            background: linear-gradient(45deg, #00f2ea, #ff0050);
+            border: none;
+            border-radius: 25px;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 16px;
+        }
+        .trend-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,242,234,0.2);
+        }
         .pagination {
             display: flex;
             justify-content: center;
             gap: 12px;
-            margin: 32px 0;
+            margin: 20px 0;
         }
-
         .pagination button {
             padding: 12px 24px;
             border: none;
-            background: var(--card-bg);
-            color: var(--text);
+            background: #1e1e1e;
+            color: white;
             border-radius: 12px;
             cursor: pointer;
             font-weight: 500;
             transition: all 0.2s ease;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            font-size: 14px;
+            border: 1px solid rgba(255,255,255,0.1);
         }
-
         .pagination button:not(:disabled):hover {
-            background: var(--card-hover);
+            background: #2d2d2d;
             transform: translateY(-2px);
         }
-
         .pagination button:disabled {
-            background: rgba(255, 255, 255, 0.1);
+            background: rgba(255,255,255,0.1);
             cursor: not-allowed;
             opacity: 0.5;
         }
-
         .pagination-info {
             text-align: center;
-            margin: 20px 0;
-            color: var(--text-secondary);
-            font-size: 14px;
+            margin: 10px 0;
+            color: #a0a0a0;
         }
-
-        .metadata {
-            margin-top: 16px;
-            padding: 16px;
-            background: rgba(255, 255, 255, 0.05);
-            border-radius: 12px;
+        .modal-frame {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: none;
+            z-index: 1000;
         }
-
-        .metadata strong {
-            display: block;
-            margin-bottom: 8px;
-            color: var(--text-secondary);
-        }
-
         @media (max-width: 768px) {
-            .grid { 
-                grid-template-columns: 1fr;
-                padding: 10px;
-            }
-            .header h1 {
-                font-size: 36px;
-            }
-            .header p {
-                font-size: 16px;
-            }
-            .container {
-                padding: 10px;
-            }
+            .grid { grid-template-columns: 1fr; }
+            body { padding: 10px; }
+            .header h1 { font-size: 36px; }
+            .header p { font-size: 16px; }
         }
-        
         @media (min-width: 769px) and (max-width: 1200px) {
-            .grid {
-                grid-template-columns: repeat(2, 1fr);
-            }
+            .grid { grid-template-columns: repeat(2, 1fr); }
+        }
+        @media (min-width: 1201px) {
+            .grid { grid-template-columns: repeat(3, 1fr); }
         }
     </style>
 </head>
@@ -246,13 +201,17 @@ class HTMLGenerator:
         <div class="header">
             <h1>ScripTok</h1>
             <p>I video più popolari in Italia</p>
+            <button id="trendButton" class="trend-button">Analisi dei Trend</button>
         </div>
         <div class="pagination"></div>
         <div class="pagination-info"></div>
-        <div class="grid" id="videos-container">
-        </div>
+        <div class="grid" id="videos-container"></div>
         <div class="pagination"></div>
     </div>
+
+    <!-- Frame per la modale -->
+    <iframe id="trendFrame" class="modal-frame" src="about:blank"></iframe>
+
     <script>'''
 
         videos_json = json.dumps([{
@@ -266,12 +225,34 @@ class HTMLGenerator:
         } for video in videos_data])
 
         html_middle = f'''
+        // Configurazione
         const VIDEOS_PER_PAGE = {CONFIG['VIDEOS_PER_PAGE']};
         const videos = {videos_json};
 
+        // Stato corrente
         let currentPage = 1;
         const totalPages = Math.ceil(videos.length / VIDEOS_PER_PAGE);
 
+        // Gestione modale trend
+        const trendButton = document.getElementById('trendButton');
+        const trendFrame = document.getElementById('trendFrame');
+
+        trendButton.addEventListener('click', () => {
+            trendFrame.src = 'trend.html';
+            trendFrame.style.display = 'block';
+            document.body.style.overflow = 'hidden';
+        });
+
+        // Gestione chiusura modale
+        window.addEventListener('message', (event) => {
+            if (event.data === 'closeModal') {
+                trendFrame.style.display = 'none';
+                trendFrame.src = 'about:blank';
+                document.body.style.overflow = 'auto';
+            }
+        });
+
+        // Gestione Intersection Observer per lazy loading
         const videoObserver = new IntersectionObserver((entries, observer) => {{
             entries.forEach(entry => {{
                 if (entry.isIntersecting) {{
@@ -300,26 +281,26 @@ class HTMLGenerator:
             card.innerHTML = `
                 <div class="video-title">${{video.title}}</div>
                 <div class="video-stats">
-                    <span><strong>Creator:</strong> ${{video.creator}}</span>
-                    <span><strong>Views:</strong> ${{video.views}}</span>
+                    <strong>Creator:</strong> ${{video.creator}}<br>
+                    <strong>Views:</strong> ${{video.views}}
                 </div>
                 <div class="video-url">
-                    <a href="${{video.url}}" target="_blank">${{video.url}}</a>
+                    <strong>URL:</strong> <a href="${{video.url}}" target="_blank">${{video.url}}</a>
                 </div>
                 <div class="video-container">
                     <div class="video-embed">
-                        <iframe data-src="https://www.tiktok.com/embed/${{video.id}}"
-                                allowfullscreen scrolling="no"
+                        <iframe data-src="https://www.tiktok.com/embed/${{video.id}}" 
+                                allowfullscreen scrolling="no" 
                                 allow="encrypted-media;">
                         </iframe>
                     </div>
                 </div>
                 <div class="metadata">
-                    <strong>Categorie:</strong>
+                    <strong>Categorie:</strong><br>
                     ${{categories}}
                 </div>
-                <div class="metadata" style="margin-top: 16px;">
-                    <strong>Keywords:</strong>
+                <div class="metadata" style="margin-top: 10px;">
+                    <strong>Keywords:</strong><br>
                     ${{keywords}}
                 </div>
             `;
@@ -329,10 +310,10 @@ class HTMLGenerator:
         function updatePagination() {{
             const paginationElements = document.querySelectorAll('.pagination');
             const paginationHTML = `
-                <button onclick="changePage(1)" ${{currentPage === 1 ? 'disabled' : ''}}>Prima</button>
-                <button onclick="changePage(${{currentPage - 1}})" ${{currentPage === 1 ? 'disabled' : ''}}>Precedente</button>
-                <button onclick="changePage(${{currentPage + 1}})" ${{currentPage === totalPages ? 'disabled' : ''}}>Successiva</button>
-                <button onclick="changePage(${{totalPages}})" ${{currentPage === totalPages ? 'disabled' : ''}}>Ultima</button>
+                <button onclick="changePage(1)" ${{currentPage === 1 ? 'disabled' : ''}}">Prima</button>
+                <button onclick="changePage(${{currentPage - 1}})" ${{currentPage === 1 ? 'disabled' : ''}}">Precedente</button>
+                <button onclick="changePage(${{currentPage + 1}})" ${{currentPage === totalPages ? 'disabled' : ''}}">Successiva</button>
+                <button onclick="changePage(${{totalPages}})" ${{currentPage === totalPages ? 'disabled' : ''}}">Ultima</button>
             `;
             paginationElements.forEach(el => el.innerHTML = paginationHTML);
             
@@ -366,6 +347,7 @@ class HTMLGenerator:
             }});
         }}
 
+        // Inizializzazione
         displayCurrentPage();
         updatePagination();
     </script>
